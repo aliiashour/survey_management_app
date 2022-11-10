@@ -14,3 +14,4 @@
 //     $(".slider, .carousel-inner, .carousel-item").height( wheight - ( nav_height + header_height ) ) ; 
 // }
 
+console.log('funck') ; 

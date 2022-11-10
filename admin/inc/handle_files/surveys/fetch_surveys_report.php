@@ -19,7 +19,6 @@
         $q .= " OR survey.survey_expire_date LIKE '%" . $search_value . "%'" ; 
         $q .= " OR sent LIKE '%" . $search_value . "%'" ; 
         $q .= " OR participat LIKE '%" . $search_value . "%'" ; 
-        $q .= " OR participat LIKE '%" . $search_value . "%'" ; 
          
     }
 
@@ -50,7 +49,7 @@
             $sub_arr[] = $row['survey_start_date'] ; 
             $sub_arr[] = $row['survey_expire_date'] ; 
             $sub_arr[] = $row['sent'] ; 
-            $sub_arr[] = $row['participat'] ; 
+            $sub_arr[] = $row['participat'] ;
             $sub_arr[] = '<button data-title="review_survey" data-action="review" id="review_button" class="btn btn-info" data-survey_id="' . $row['survey_id'] .  '"><i class="fa-solid fa-eye"></i></button>' ; 
             $data[] = $sub_arr ; 
             $counter +=1 ; 

@@ -25,7 +25,7 @@
                                             <?php echo $res['user_email']?>
                                         </span>
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="../surveys/">surveys Report</a></li>
+                                            <li><a class="dropdown-item" href="../surveys/report.php">surveys Report</a></li>
                                             <hr>
                                             <li><span style="cursor:pointer" id="change_password_button" class="dropdown-item" href="" data-modal="reset_password_modal">change password</span></li>
                                             <li><a class="dropdown-item" href="../../logout.php">logout</a></li>

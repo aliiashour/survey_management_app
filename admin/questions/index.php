@@ -1,10 +1,14 @@
 <?php 
-    $page_title = "Survey management system"  ; 
+    
+    $page_title = "Survey questions"  ; 
     include_once "../init.php" ; 
 
     if(!isset($_SESSION['user_id'])){
         header('location:../../login.php') ; 
     }
+    
+    $survey_id = $_GET['survey_id'] ; 
+
     $q = "SELECT * FROM USERS WHERE user_id = ?" ; 
     $stmt = $con->prepare($q) ; 
     $stmt->execute(array($_SESSION['user_id'])) ; 
@@ -15,7 +19,7 @@
             <div class="row">
                 <nav class="navbar navbar-expand-lg bg-dark">
                     <div class="container-fluid">
-                        <a class="navbar-brand text-light" href="./">SurveyBuilder</a>
+                        <a class="navbar-brand text-light" href="../surveys/">SurveyBuilder</a>
                         
                         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                             <ul class="navbar-nav mb-2 mb-lg-0">
@@ -24,8 +28,9 @@
                                         <span class="text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <?php echo $res['user_email']?>
                                         </span>
+                                        <input type="hidden" id="survey_id" value="<?php echo $survey_id?>">
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="./report.php">surveys Report</a></li>
+                                            <li><a class="dropdown-item" href="../surveys/report.php">surveys Report</a></li>
                                             <li><a class="dropdown-item" href="../users/">Users</a></li>
                                             <hr>
                                             <li><span style="cursor:pointer" id="change_password_button" class="dropdown-item" href="" data-modal="reset_password_modal">change password</span></li>
@@ -40,7 +45,7 @@
             </div>
             <div class="row">
                 <div class="col-12 text-end">
-                    <button data-title="Add Survey" data-action="add" id ="add_survey_button" class="mt-3 mb-3 btn btn-lg btn-primary"><i class="fa-solid fa-plus"></i> Add Survey</button>
+                    <button data-title="Add Question" data-action="add" id ="add_question_button" class="mt-3 mb-3 btn btn-lg btn-primary"><i class="fa-solid fa-plus"></i> Add Question</button>
                 </div>
                 <div class="col-12">
                     <!-- 
@@ -51,11 +56,7 @@
                     <table id="datatable" class="table hover">
                         <thead>
                             <th>S.N</th>
-                            <th>Selection</th>
-                            <th>Name</th>
-                            <th>Start date</th>
-                            <th>Expire date</th>
-                            <th>Status</th>
+                            <th>Question</th>
                             <th>Action</th>
                         </thead>
                         <tbody>
@@ -67,6 +68,7 @@
 
         <?php include_once $templates. "footer.php" ?>
         <script>
+            var survey_id = $("#survey_id").val() ;
             // setting datatable
             $("#datatable").DataTable({
                 "pagingType": 'full_numbers',
@@ -82,125 +84,119 @@
                 "paging":true,
                 "order":[],
                 "ajax":{
-                    "url":"../inc/handle_files/surveys/fetch_all_surveys.php",
+                    "url":"../inc/handle_files/questions/fetch_all_survey_question.php?survey_id="+survey_id,
                     "type":"post",
                 },
                 "fnCreateRow":function(nRow, aData, iDataIndex){
                     $(nRow).attr('id', aData[0]) ; 
                 },
                 "columnDefs":[{
-                    "target":[0,6],
+                    "target":[0,2],
                     "orderable":false,
                 }]
             }) ; 
 
-/////////////////////////////////////////////////////////////////////////
 
-            $("#add_survey_button").on('click', function(){
-                $modal_title = $(this).data("title") ; 
-                $modal_action = $(this).data("action") ; 
-                $("#title").html($modal_title) ;
-                $("#action").html($modal_action) ;
-                var survey_id = $("#survey_id").val('') ; 
-                var survey_title = $("#survey_title").val('') ; 
-                var survey_start_date = $("#survey_start_date").val('') ; 
-                var survey_expire_date = $("#survey_expire_date").val('') ; 
-                var survey_status = $("#survey_status").val('active');
-                $("#survey_modal").modal('show') ; 
-            })
+            // $("#add_question_button").on('click', function(){
+            //     $modal_title = $(this).data("title") ; 
+            //     $modal_action = $(this).data("action") ; 
+            //     $("#title").html($modal_title) ;
+            //     $("#action").html($modal_action) ;
+            //     var survey_id = $("#survey_id").val('') ; 
+            //     var question_title = $("#question_title").val('') ; 
+            //     var question_survey_id = $("#question_survey_id").val('');
+            //     $("#survey_modal").modal('show') ; 
+            // })
 
-            // submit the modal 
-            $(document).on("submit", "#survey_modal", function(event){
-                event.preventDefault() ;
-                var survey_id = $("#survey_id").val() ; 
-                var survey_title = $("#survey_title").val() ; 
-                var survey_start_date = $("#survey_start_date").val() ; 
-                var survey_expire_date = $("#survey_expire_date").val() ; 
-                var survey_status = $("#survey_status").val();
-                var url = "../inc/handle_files/surveys/" + $("#action").html() + "_survey.php" ; 
-                if(survey_title != ''  && survey_start_date != ''  && survey_expire_date != ''){
-                    $.ajax({
-                        url:url,
-                        method:"post",
-                        data:{survey_id:survey_id, survey_title:survey_title, survey_start_date:survey_start_date, survey_expire_date:survey_expire_date, survey_status:survey_status},
-                        success:function(data){
-                            var json = JSON.parse(data) ; 
-                            if(json.status == "success"){
-                                $("#datatable").DataTable().draw() ; 
-                                $("#response-form").html('<div class="alert alert-success">' + json.msg + '</div>') ; 
-                                $("#survey_title").val('') ; 
-                                $("#survey_start_date").val('') ; 
-                                $("#survey_expire_date").val('') ; 
-                                $("#survey_status").val('') ; 
-                            }else{
-                                $("#response-form").html('<div class="alert alert-danger">' +json.msg + '</div>') ; 
-                            }
-                            setTimeout(function(){
-                                $("#response").html('');
-                                $("#response-form").html('');
-                            }, 2000);
-                        }
-                    }) ; 
-                }else{
-                    $("#response-form").html('<div class="alert alert-danger">fill all fieds</div>') ; 
-                    setTimeout(function(){
-                        $("#response-form").html('') ; 
-                    }, 2000) ; 
+            // // submit the modal 
+            // $(document).on("submit", "#survey_modal", function(event){
+            //     event.preventDefault() ;
+            //     var survey_id = $("#survey_id").val() ; 
+            //     var question_title = $("#question_title").val() ; 
+            //     var url = "../inc/handle_files/questions/" + $("#action").html() + "_question.php?survey_id="+survey_id ; 
+            //     if(question_title != ''  && survey_start_date != ''  && survey_expire_date != ''){
+            //         $.ajax({
+            //             url:url,
+            //             method:"post",
+            //             data:{survey_id:survey_id, survey_title:survey_title, survey_start_date:survey_start_date, survey_expire_date:survey_expire_date, survey_status:survey_status},
+            //             success:function(data){
+            //                 var json = JSON.parse(data) ; 
+            //                 if(json.status == "success"){
+            //                     $("#datatable").DataTable().draw() ; 
+            //                     $("#response-form").html('<div class="alert alert-success">' + json.msg + '</div>') ; 
+            //                     $("#survey_title").val('') ; 
+            //                     $("#survey_start_date").val('') ; 
+            //                     $("#survey_expire_date").val('') ; 
+            //                     $("#survey_status").val('') ; 
+            //                 }else{
+            //                     $("#response-form").html('<div class="alert alert-danger">' +json.msg + '</div>') ; 
+            //                 }
+            //                 setTimeout(function(){
+            //                     $("#response").html('');
+            //                     $("#response-form").html('');
+            //                 }, 2000);
+            //             }
+            //         }) ; 
+            //     }else{
+            //         $("#response-form").html('<div class="alert alert-danger">fill all fieds</div>') ; 
+            //         setTimeout(function(){
+            //             $("#response-form").html('') ; 
+            //         }, 2000) ; 
                 
-                } 
-            }) ;
+            //     } 
+            // }) ;
             
-            // click to edit button
-            $(document).on('click', '#edit_button', function(){
-                var survey_id = $(this).data('survey_id') ; 
-                $modal_title = $(this).data("title") ; 
-                $modal_action = $(this).data("action") ; 
-                $("#title").html($modal_title) ;
-                $("#action").html($modal_action) ;
-                if(survey_id != ''){
-                    // now fetch user data
-                    $.ajax({
-                        url:"../inc/handle_files/surveys/fetch_single_survey.php",
-                        method:"POST",
-                        data:{survey_id:survey_id},
-                        success:function(data){
-                            var json = JSON.parse(data) ;
-                            if(json.status =='found'){
-                                // exist user
-                                $("#survey_id").val(json['data']['survey_id']) ; 
-                                $("#survey_title").val(json['data']['survey_title']) ; 
-                                $("#survey_start_date").val(json['data']['survey_start_date']) ; 
-                                $("#survey_expire_date").val(json['data']['survey_expire_date']) ; 
-                                $("#survey_status").val(json['data']['survey_status']) ;
-                                $("#survey_modal").modal('show') ; 
-                            }
-                        }
-                    }) ; 
-                }
-            }) ;
+            // // click to edit button
+            // $(document).on('click', '#edit_button', function(){
+            //     var survey_id = $(this).data('survey_id') ; 
+            //     $modal_title = $(this).data("title") ; 
+            //     $modal_action = $(this).data("action") ; 
+            //     $("#title").html($modal_title) ;
+            //     $("#action").html($modal_action) ;
+            //     if(survey_id != ''){
+            //         // now fetch user data
+            //         $.ajax({
+            //             url:"../inc/handle_files/surveys/fetch_single_survey.php",
+            //             method:"POST",
+            //             data:{survey_id:survey_id},
+            //             success:function(data){
+            //                 var json = JSON.parse(data) ;
+            //                 if(json.status =='found'){
+            //                     // exist user
+            //                     $("#survey_id").val(json['data']['survey_id']) ; 
+            //                     $("#survey_title").val(json['data']['survey_title']) ; 
+            //                     $("#survey_start_date").val(json['data']['survey_start_date']) ; 
+            //                     $("#survey_expire_date").val(json['data']['survey_expire_date']) ; 
+            //                     $("#survey_status").val(json['data']['survey_status']) ;
+            //                     $("#survey_modal").modal('show') ; 
+            //                 }
+            //             }
+            //         }) ; 
+            //     }
+            // }) ;
 
-            // delete user
-            $(document).on('click', '#delete_button', function(){
-                var survey_id = $(this).data("survey_id") ; 
-                // now delete user directly
-                if(confirm('are you sure?')){
-                    $.ajax({
-                        url:"../inc/handle_files/surveys/delete_survey.php",
-                        method:"POST",
-                        data:{survey_id:survey_id},
-                        success:function(data){
-                            json = JSON.parse(data) ; 
-                            if(json['status'] == 'success'){
-                                $("#datatable").DataTable().draw() ; 
-                                $("#response").html('<div class="alert alert-success text-start">survey deleted</div>') ; 
-                                setTimeout(function(){
-                                    $("#response").html('') ; 
-                                }, 2000) ; 
-                            }
-                        }
-                    });
-                }
-            }) ; 
+            // // delete user
+            // $(document).on('click', '#delete_button', function(){
+            //     var survey_id = $(this).data("survey_id") ; 
+            //     // now delete user directly
+            //     if(confirm('are you sure?')){
+            //         $.ajax({
+            //             url:"../inc/handle_files/surveys/delete_survey.php",
+            //             method:"POST",
+            //             data:{survey_id:survey_id},
+            //             success:function(data){
+            //                 json = JSON.parse(data) ; 
+            //                 if(json['status'] == 'success'){
+            //                     $("#datatable").DataTable().draw() ; 
+            //                     $("#response").html('<div class="alert alert-success text-start">survey deleted</div>') ; 
+            //                     setTimeout(function(){
+            //                         $("#response").html('') ; 
+            //                     }, 2000) ; 
+            //                 }
+            //             }
+            //         });
+            //     }
+            // }) ; 
             //////////////////////////////
 
 
@@ -258,7 +254,7 @@
     <?php else: ?>
         <p>you should not to be here</p>
     <?php endif ?>
-    <div id="survey_modal" class="modal" tabindex="-1">
+    <!-- <div id="survey_modal" class="modal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
             <div class="modal-header">
@@ -267,7 +263,7 @@
             </div>
             <div class="modal-body">
                 <form class="row g-3" method="POST">
-                    <input type="hidden" id="survey_id">
+                    <input type="hidden" id="survey_id" value="echo survey_id">
                     <div id="response-form"></div>
                     <div class="col-md-6">
                         <label for="inputName" class="form-label">Survey Title</label>
@@ -298,7 +294,7 @@
             </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Modal to reset password -->
     <div id="reset_password_modal" class="modal" tabindex="-1">
