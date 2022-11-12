@@ -253,7 +253,32 @@
                 }, 2000);
 
             });
-
+            
+            // send survey to user
+            $(document).on('click', '#send_button', function(){
+                var survey_id = $(this).data("survey_id") ; 
+                // now delete user directly
+                if(confirm('are you sure?')){
+                    $.ajax({
+                        url:"../inc/handle_files/surveys/send_survey.php",
+                        method:"POST",
+                        data:{survey_id:survey_id, user_email:localStorage.getItem("email").trim()},
+                        success:function(data){
+                            console.log(localStorage.getItem("email").trim()); 
+                            json = JSON.parse(data) ; 
+                            if(json['status'] == 'success'){
+                                $("#datatable").DataTable().draw() ; 
+                                $("#response").html('<div class="alert alert-success text-start">'+json['msg']+'</div>') ;
+                            }else{
+                                $("#response").html('<div class="alert alert-danger text-start">'+json['msg']+'</div>') ; 
+                            }
+                        }
+                    });
+                    setTimeout(function(){
+                        $("#response").html('') ; 
+                    }, 2000) ; 
+                }
+            }) ; 
         </script>
     <?php else: ?>
         <p>you should not to be here</p>
