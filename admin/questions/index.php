@@ -45,7 +45,10 @@
             </div>
             <div class="row">
                 <div class="col-12 text-end">
-                    <button data-title="Add Question" data-action="add" id ="add_question_button" class="mt-3 mb-3 btn btn-lg btn-primary"><i class="fa-solid fa-plus"></i> Add Question</button>
+                    <button data-title="Add Question" data-action="add" id ="add_question_button" class="mt-3 mb-3 btn btn-lg btn-primary">
+                        <i class="fa-solid fa-plus"></i> 
+                        Add Question
+                    </button>
                 </div>
                 <div class="col-12">
                     <!-- 
@@ -97,54 +100,79 @@
             }) ; 
 
 
-            // $("#add_question_button").on('click', function(){
-            //     $modal_title = $(this).data("title") ; 
-            //     $modal_action = $(this).data("action") ; 
-            //     $("#title").html($modal_title) ;
-            //     $("#action").html($modal_action) ;
-            //     var survey_id = $("#survey_id").val('') ; 
-            //     var question_title = $("#question_title").val('') ; 
-            //     var question_survey_id = $("#question_survey_id").val('');
-            //     $("#survey_modal").modal('show') ; 
-            // })
+            $("#add_question_button").on('click', function(){
+                $modal_title = $(this).data("title") ; 
+                $modal_action = $(this).data("action") ; 
+                $("#title").html($modal_title) ;
+                $("#action").html($modal_action) ;
+                // var survey_id = $("#survey_id").val('') ; 
+                var question_title = $("#question_title").val('') ; 
+                // var question_survey_id = $("#question_survey_id").val('');
+                $("#question_modal").modal('show') ; 
+                // now choose question type
+                $("#question_type").click(function(){
+                    $("#tbl_result").html("") ; 
+                    var type = $("#question_type option:selected" ).val() ; 
+                    if(type =="RADIO" || type =="CHECK"){
+                        if(type == "RADIO"){
+                            type = 'radio'  ; 
+                        }else{
+                            type = 'checkbox'  ; 
+                        }
+                        var indx = 0 ; 
+                        var html = '<tr><td><div class="row"><div id="response-form" class="mb-1"></div><div class="col-md-8"><input type="text" class="form-control" data-create="'+type+'" id="option_value_' + (indx+1) + '"></div><div class="col-md-4"><span id="add_it" class="btn btn-sm btn-primary">add</span></div></td></tr></div>';
 
-            // // submit the modal 
-            // $(document).on("submit", "#survey_modal", function(event){
-            //     event.preventDefault() ;
-            //     var survey_id = $("#survey_id").val() ; 
-            //     var question_title = $("#question_title").val() ; 
-            //     var url = "../inc/handle_files/questions/" + $("#action").html() + "_question.php?survey_id="+survey_id ; 
-            //     if(question_title != ''  && survey_start_date != ''  && survey_expire_date != ''){
-            //         $.ajax({
-            //             url:url,
-            //             method:"post",
-            //             data:{survey_id:survey_id, survey_title:survey_title, survey_start_date:survey_start_date, survey_expire_date:survey_expire_date, survey_status:survey_status},
-            //             success:function(data){
-            //                 var json = JSON.parse(data) ; 
-            //                 if(json.status == "success"){
-            //                     $("#datatable").DataTable().draw() ; 
-            //                     $("#response-form").html('<div class="alert alert-success">' + json.msg + '</div>') ; 
-            //                     $("#survey_title").val('') ; 
-            //                     $("#survey_start_date").val('') ; 
-            //                     $("#survey_expire_date").val('') ; 
-            //                     $("#survey_status").val('') ; 
-            //                 }else{
-            //                     $("#response-form").html('<div class="alert alert-danger">' +json.msg + '</div>') ; 
-            //                 }
-            //                 setTimeout(function(){
-            //                     $("#response").html('');
-            //                     $("#response-form").html('');
-            //                 }, 2000);
-            //             }
-            //         }) ; 
-            //     }else{
-            //         $("#response-form").html('<div class="alert alert-danger">fill all fieds</div>') ; 
-            //         setTimeout(function(){
-            //             $("#response-form").html('') ; 
-            //         }, 2000) ; 
+                        $("#tbl_result").prepend(html) ; 
+                        $("#add_it").on('click', function(){
+                            indx++ ; 
+                            var option = '<tr><td><div class="row"><div id="response-form" class="mb-1"></div><div class="col-md-8"><input type="text" class="form-control" data-create="'+type+'" id="option_value_' + (indx+1) + '"></div><div class="col-md-4"><span id="delete_it" class="btn btn-sm btn-danger">delete</span></div></td></tr></div>';
+                            $("#tbl_result").append(option) ; 
+                        }) ; 
+
+                        $("#tbl_result").on('click','#delete_it', function(){
+                            $("#tbl_result tr:last").remove() ; 
+                            indx-- ; 
+                        }) ; 
+
+                    }
+                });
+            })
+
+            // submit the modal 
+            $(document).on("submit", "#question_modal", function(event){
+
+                event.preventDefault() ;
+                var survey_id = $("#survey_id").val() ; 
+                var question_title = $("#question_title").val() ; 
+                var url = "../inc/handle_files/questions/" + $("#action").html() + "_question.php" ; 
+                if(question_title != '' ){
+                    $.ajax({
+                        url:url,
+                        method:"post",
+                        data:{survey_id:survey_id, question_title:question_title},
+                        success:function(data){
+                            var json = JSON.parse(data) ; 
+                            if(json.status == "success"){
+                                $("#datatable").DataTable().draw() ; 
+                                $("#response-form").html('<div class="alert alert-success">' + json.msg + '</div>') ; 
+                                $("#question_title").val('') ;  
+                            }else{
+                                $("#response-form").html('<div class="alert alert-danger">' +json.msg + '</div>') ; 
+                            }
+                            setTimeout(function(){
+                                $("#response").html('');
+                                $("#response-form").html('');
+                            }, 2000);
+                        }
+                    }) ; 
+                }else{
+                    $("#response-form").html('<div class="alert alert-danger">fill all fieds</div>') ; 
+                    setTimeout(function(){
+                        $("#response-form").html('') ; 
+                    }, 2000) ; 
                 
-            //     } 
-            // }) ;
+                } 
+            }) ;
             
             // // click to edit button
             // $(document).on('click', '#edit_button', function(){
@@ -175,29 +203,29 @@
             //     }
             // }) ;
 
-            // // delete user
-            // $(document).on('click', '#delete_button', function(){
-            //     var survey_id = $(this).data("survey_id") ; 
-            //     // now delete user directly
-            //     if(confirm('are you sure?')){
-            //         $.ajax({
-            //             url:"../inc/handle_files/surveys/delete_survey.php",
-            //             method:"POST",
-            //             data:{survey_id:survey_id},
-            //             success:function(data){
-            //                 json = JSON.parse(data) ; 
-            //                 if(json['status'] == 'success'){
-            //                     $("#datatable").DataTable().draw() ; 
-            //                     $("#response").html('<div class="alert alert-success text-start">survey deleted</div>') ; 
-            //                     setTimeout(function(){
-            //                         $("#response").html('') ; 
-            //                     }, 2000) ; 
-            //                 }
-            //             }
-            //         });
-            //     }
-            // }) ; 
-            //////////////////////////////
+            // delete question
+            $(document).on('click', '#delete_button', function(){
+                var question_id = $(this).data("question_id") ; 
+                // now delete user directly
+                if(confirm('are you sure?')){
+                    $.ajax({
+                        url:"../inc/handle_files/questions/delete_question.php",
+                        method:"POST",
+                        data:{question_id:question_id},
+                        success:function(data){
+                            json = JSON.parse(data) ; 
+                            if(json['status'] == 'success'){
+                                $("#datatable").DataTable().draw() ; 
+                                $("#response").html('<div class="alert alert-success text-start">question deleted</div>') ; 
+                                setTimeout(function(){
+                                    $("#response").html('') ; 
+                                }, 2000) ; 
+                            }
+                        }
+                    });
+                }
+            }) ; 
+            ////////////////////////////
 
 
             // open reset_password_modal when clicking the change_password_button
@@ -250,11 +278,15 @@
 
             });
 
+
+            // set in result the question_type
+
+
         </script>
     <?php else: ?>
         <p>you should not to be here</p>
     <?php endif ?>
-    <!-- <div id="survey_modal" class="modal" tabindex="-1">
+    <div id="question_modal" class="modal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
             <div class="modal-header">
@@ -263,27 +295,26 @@
             </div>
             <div class="modal-body">
                 <form class="row g-3" method="POST">
-                    <input type="hidden" id="survey_id" value="echo survey_id">
                     <div id="response-form"></div>
-                    <div class="col-md-6">
-                        <label for="inputName" class="form-label">Survey Title</label>
-                        <input type="text" class="form-control" id="survey_title" name="survey_title">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="inputEmail4" class="form-label">Survey Start Date</label>
-                        <input type="date" class="form-control" id="survey_start_date" name="survey_start_date">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="inputPassword4" class="form-label">Survey Expire Date</label>
-                        <input type="date" class="form-control" id="survey_expire_date" name="survey_expire_date">
+                    <div class="col-md-8">
+                        <label for="inputName" class="form-label">Enter question </label>
+                        <input type="text" class="form-control" id="question_title" name="question_title">
                     </div>
                     <div class="col-md-4">
-                        <label for="inputState" class="form-label">Status</label>
-                        <select name="survey_status" id="survey_status" class="form-select">
+                        <label for="inputState" class="form-label">Type</label>
+                        <select name="question_type" id="question_type" class="form-select">
                             <option selected>Choose...</option>
-                            <option value="pended">pended</option>
-                            <option value="active" selected>active</option>
+                            <option value="TEXT" selected>Text Box</option>
+                            <option value="RADIO">Choose One</option>
+                            <option value="CHECK">Choose More</option>
                         </select>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row" id="result">
+                            <!-- here just what i want is when click in selection box -->
+                            <!-- the result appear in front of me -->
+                            <table id="tbl_result"></table>
+                        </div>
                     </div>
             </div>
             <div class="modal-footer">
@@ -294,7 +325,7 @@
             </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <!-- Modal to reset password -->
     <div id="reset_password_modal" class="modal" tabindex="-1">
