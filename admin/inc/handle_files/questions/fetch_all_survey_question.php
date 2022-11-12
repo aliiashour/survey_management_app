@@ -44,7 +44,7 @@
             $sub_arr[] = $row['question_title'] ; 
             $sub_arr[] = '
                             <button data-title="review_survey" data-action="review" id="review_button" class="btn btn-info" data-survey_id="' . $row['question_survey_id'] .  '"><i class="fa-solid fa-eye"></i></button>
-                            <button id="delete_button" class="btn btn-danger" data-survey_id="' . $row['question_survey_id'] . '"><i class="fa-sharp fa-solid fa-trash"></i></button>
+                            <button id="delete_button" class="btn btn-danger" data-question_id="' . $row['question_id'] . '"><i class="fa-sharp fa-solid fa-trash"></i></button>
                         ' ; 
             $data[] = $sub_arr ; 
             $counter +=1 ; 
