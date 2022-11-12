@@ -245,6 +245,20 @@
 
             });
 
+            // get selection
+            function getSelectionText() {
+                var text = "";
+                if (window.getSelection) {
+                    text = window.getSelection().toString();
+                } else if (document.selection && document.selection.type != "Control") {
+                    text = document.selection.createRange().text;
+                }
+                    return text;
+            }
+            setInterval(function(){
+                localStorage.setItem("email", getSelectionText()) ;  
+            }, 1000);
+
         </script>
     <?php else: ?>
         <p>you should not to be here</p>

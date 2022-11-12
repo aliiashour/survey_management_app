@@ -105,11 +105,8 @@
                 $modal_action = $(this).data("action") ; 
                 $("#title").html($modal_title) ;
                 $("#action").html($modal_action) ;
-                // var survey_id = $("#survey_id").val('') ; 
                 var question_title = $("#question_title").val('') ; 
-                // var question_survey_id = $("#question_survey_id").val('');
                 $("#question_modal").modal('show') ; 
-                // now choose question type
                 $("#question_type").click(function(){
                     $("#tbl_result").html("") ; 
                     var type = $("#question_type option:selected" ).val() ; 
@@ -120,12 +117,12 @@
                             type = 'checkbox'  ; 
                         }
                         var indx = 0 ; 
-                        var html = '<tr><td><div class="row"><div id="response-form" class="mb-1"></div><div class="col-md-8"><input type="text" class="form-control" data-create="'+type+'" id="option_value_' + (indx+1) + '"></div><div class="col-md-4"><span id="add_it" class="btn btn-sm btn-primary">add</span></div></td></tr></div>';
+                        var html = '<tr><td><div class="row"><div id="response-form" class="mb-1"></div><div class="col-md-8"><input type="text" name="value" class="form-control" data-create="'+type+'" id="input_type"></div><div class="col-md-4"><span id="add_it" class="btn btn-sm btn-primary">add</span></div></td></tr></div>';
 
                         $("#tbl_result").prepend(html) ; 
                         $("#add_it").on('click', function(){
                             indx++ ; 
-                            var option = '<tr><td><div class="row"><div id="response-form" class="mb-1"></div><div class="col-md-8"><input type="text" class="form-control" data-create="'+type+'" id="option_value_' + (indx+1) + '"></div><div class="col-md-4"><span id="delete_it" class="btn btn-sm btn-danger">delete</span></div></td></tr></div>';
+                            var option = '<tr><td><div class="row"><div id="response-form" class="mb-1"></div><div class="col-md-8"><input type="text" name="value" class="form-control" data-create="'+type+'"></div><div class="col-md-4"><span id="delete_it" class="btn btn-sm btn-danger">delete</span></div></td></tr></div>';
                             $("#tbl_result").append(option) ; 
                         }) ; 
 
@@ -133,8 +130,10 @@
                             $("#tbl_result tr:last").remove() ; 
                             indx-- ; 
                         }) ; 
-
+                    }else{
+                        type = 'text'  ; 
                     }
+
                 });
             })
 
@@ -143,13 +142,26 @@
 
                 event.preventDefault() ;
                 var survey_id = $("#survey_id").val() ; 
+
+
                 var question_title = $("#question_title").val() ; 
+                // 01
+                var input_type = $("#input_type").data('create')?$("#input_type").data('create'):'text' ; 
+                var values = [] ; 
+                $('[name="value"]').each(function(i){
+                    values[i] = $(this).val().trim() ; 
+                }) ;
+                // 02
+                var input_value = values.join(", ") ;
+                input_value = input_value?input_value:"" ; 
+                // 03
+                var input_num = values.length ; 
                 var url = "../inc/handle_files/questions/" + $("#action").html() + "_question.php" ; 
                 if(question_title != '' ){
                     $.ajax({
                         url:url,
                         method:"post",
-                        data:{survey_id:survey_id, question_title:question_title},
+                        data:{survey_id:survey_id, question_title:question_title, question_type:input_type, answer_values:input_value, answer_count:input_num},
                         success:function(data){
                             var json = JSON.parse(data) ; 
                             if(json.status == "success"){
@@ -174,35 +186,6 @@
                 } 
             }) ;
             
-            // // click to edit button
-            // $(document).on('click', '#edit_button', function(){
-            //     var survey_id = $(this).data('survey_id') ; 
-            //     $modal_title = $(this).data("title") ; 
-            //     $modal_action = $(this).data("action") ; 
-            //     $("#title").html($modal_title) ;
-            //     $("#action").html($modal_action) ;
-            //     if(survey_id != ''){
-            //         // now fetch user data
-            //         $.ajax({
-            //             url:"../inc/handle_files/surveys/fetch_single_survey.php",
-            //             method:"POST",
-            //             data:{survey_id:survey_id},
-            //             success:function(data){
-            //                 var json = JSON.parse(data) ;
-            //                 if(json.status =='found'){
-            //                     // exist user
-            //                     $("#survey_id").val(json['data']['survey_id']) ; 
-            //                     $("#survey_title").val(json['data']['survey_title']) ; 
-            //                     $("#survey_start_date").val(json['data']['survey_start_date']) ; 
-            //                     $("#survey_expire_date").val(json['data']['survey_expire_date']) ; 
-            //                     $("#survey_status").val(json['data']['survey_status']) ;
-            //                     $("#survey_modal").modal('show') ; 
-            //                 }
-            //             }
-            //         }) ; 
-            //     }
-            // }) ;
-
             // delete question
             $(document).on('click', '#delete_button', function(){
                 var question_id = $(this).data("question_id") ; 
@@ -225,8 +208,6 @@
                     });
                 }
             }) ; 
-            ////////////////////////////
-
 
             // open reset_password_modal when clicking the change_password_button
             $("#change_password_button").on('click', function(){
@@ -303,7 +284,6 @@
                     <div class="col-md-4">
                         <label for="inputState" class="form-label">Type</label>
                         <select name="question_type" id="question_type" class="form-select">
-                            <option selected>Choose...</option>
                             <option value="TEXT" selected>Text Box</option>
                             <option value="RADIO">Choose One</option>
                             <option value="CHECK">Choose More</option>

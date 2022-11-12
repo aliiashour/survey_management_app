@@ -56,6 +56,7 @@
                             </a>
                             <button data-title="Edit Survey" data-action="update" id="edit_button" class="btn btn-warning" data-survey_id="' . $row['survey_id'] . '"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button id="delete_button" class="btn btn-danger" data-survey_id="' . $row['survey_id'] . '"><i class="fa-sharp fa-solid fa-trash"></i></button>
+                            <button id="send_button" class="btn btn-info" data-survey_id="' . $row['survey_id'] . '"><i class="fa-solid fa-paper-plane-top"></i>SEND</button>
                         ' ; 
             $data[] = $sub_arr ; 
             $counter +=1 ; 
