@@ -92,7 +92,7 @@
                                                                             <textarea class="form-control" id="textarea_<?php echo $question_id?>" rows="3"></textarea>
                                                                         </div>
                                                                         <div class="mb-3 text-end">
-                                                                            <button type="submit" class="btn btn-primary">Send</button>
+                                                                            <button data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="TEXT" data-field_name="textarea_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -116,7 +116,7 @@
                                                                         $r = '' ; 
                                                                         for ($i=0; $i < $radio_num; $i++) { 
                                                                             $r .= '<div class="form-check mb-3">
-                                                                                        <input class="form-check-input" type="radio" name="answer[]" id="radio_'.$question_id.'_'.$i.'"';
+                                                                                        <input class="form-check-input" type="radio" value="'.$radio_values[$i].'" name="radio_'.$question_id.'" id="radio_'.$question_id.'_'.$i.'"';
                                                                                         if($i==0)
                                                                                             $r .= ' checked' ; 
                                                                                         $r .= '>
@@ -130,7 +130,7 @@
                                                                     
                                                                     ?>
                                                                     <div class="mb-3 text-end">
-                                                                        <button type="submit" class="btn btn-primary">Send</button>
+                                                                        <button data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="RADIO" data-field_name="radio_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -155,7 +155,7 @@
                                                                         $r = '' ; 
                                                                         for ($i=0; $i < $check_num; $i++) { 
                                                                             $r .= '<div class="form-check mb-3">
-                                                                                        <input class="form-check-input" type="checkbox" name="answer[]" id="radio_'.$question_id.'_'.$i.'"';
+                                                                                        <input class="form-check-input" value="'.$check_values[$i].'" type="checkbox" name="checkbox_'.$question_id.'" id="check_'.$question_id.'_'.$i.'"';
                                                                                         if($i==0)
                                                                                             $r .= ' checked' ; 
                                                                                         $r .= '>
@@ -169,7 +169,7 @@
                                                                     
                                                                     ?>
                                                                     <div class="mb-3 text-end">
-                                                                        <button type="submit" class="btn btn-primary">Send</button>
+                                                                        <button data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="CHECKBOX" data-field_name="checkbox_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -240,6 +240,45 @@
                                 }, 2000);
 
                             });
+
+                            $(".click").on("click", function(){
+                                localStorage.setItem("form_id", $(this).data('form_id')) ;
+                                var user_id = $(this).data('user_id') ; 
+                                var question_id = $(this).data('question_id') ; 
+                                var survey_id = $(this).data('survey_id') ;
+                                var question_type = $(this).data('question_type') ; 
+                                var question_answer = $("#textarea_"+question_id).val();
+                                console.log(question_answer);
+                                if(question_type == "CHECKBOX"){
+                                    var chooses = [];
+                                    $.each($("input[name='"+ $(this).data("field_name") +"']:checked"), function(){
+                                        chooses.push($(this).val());
+                                    });
+                                    question_answer = chooses.join(", ") ; 
+                                }else if(question_type == "RADIO"){
+                                    question_answer = $("input[name='"+ $(this).data("field_name") +"']:checked").val();
+                                }
+                                
+                                
+                                $("#"+localStorage.getItem("form_id")).submit(function(event){
+                                    event.preventDefault() ; 
+                                    console.log(localStorage.getItem("form_id")) ; 
+                                    $.ajax({
+                                        url:"../inc/handle_files/upload_survey_answer.php",
+                                        method:"POST",
+                                        data:{user_id:user_id, question_id:question_id, survey_id:survey_id, question_type:question_type, question_answer:question_answer},
+                                        // beforeSend:function(){
+                                        //     $("#reset_button").html('wait..');
+                                        //     $("#reset_button").attr('disabled', 'disabled');
+                                        // },
+                                        success:function(data){
+                                            console.log(data) ; 
+                                        }
+                                    });
+
+                                }) ; 
+                            }) ; 
+
 
                         </script>
                     <?php else: ?>

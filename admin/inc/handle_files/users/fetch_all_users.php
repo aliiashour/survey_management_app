@@ -1,17 +1,17 @@
 <?php
     session_start() ; 
     include_once "../../../config/connect_database.php" ;  
-    $q = "SELECT * FROM users " ; 
+    $q = "SELECT * FROM users WHERE user_id != ? " ; 
     $stmt = $con->prepare($q) ; 
-    $stmt->execute() ; 
+    $stmt->execute(array($_SESSION['user_id'])) ; 
     $count_all_rows = $stmt->rowCount() ; 
 
     if(isset($_POST['search']['value'])){
         $search_value = $_POST['search']['value'] ; 
-        $q .= "WHERE users.user_name LIKE '%" . $search_value . "%'" ; 
+        $q .= "AND(users.user_name LIKE '%" . $search_value . "%'" ; 
         $q .= " OR users.user_email LIKE '%" . $search_value . "%'" ; 
         $q .= " OR users.user_created_at LIKE '%" . $search_value . "%'" ; 
-        $q .= " OR users.user_status LIKE '%" . $search_value . "%'" ; 
+        $q .= " OR users.user_status LIKE '%" . $search_value . "%')" ; 
          
     }
 
@@ -31,7 +31,7 @@
 
     $data =array() ; 
     $stmt = $con->prepare($q) ; 
-    $stmt->execute() ; 
+    $stmt->execute(array($_SESSION['user_id'])) ; 
     $filtered_rows = $stmt->rowCount() ; 
     $counter= 1 ; 
     if($stmt->rowCount()){
