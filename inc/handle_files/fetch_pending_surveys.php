@@ -1,7 +1,7 @@
 <?php
     session_start() ; 
     include_once "../../config/connect_database.php" ;  
-    $q = "SELECT survey_title, survey_info.sent_date, survey.survey_expire_date, survey_info.status 
+    $q = "SELECT survey.survey_id, survey_title, survey_info.sent_date, survey.survey_expire_date, survey_info.status 
     FROM `survey_info` INNER JOIN users ON
     survey_info.user_id = users.user_id 
     INNER JOIN survey ON 
@@ -50,8 +50,7 @@
             $sub_arr[] = $row['sent_date'] ; 
             $sub_arr[] = $row['survey_expire_date'] ; 
             $sub_arr[] = '<span class="btn btn-sm bg-danger text-light">'.$row['status'].'</span>' ; 
-            $sub_arr[] = '<button data-title="take survey" data-action="take" class="btn btn-info">take</button>
-            <button class="btn btn-danger">Delete</button>' ; 
+            $sub_arr[] = '<a class="btn btn-md btn-info" href="../takeSurvey/index.php?survey_id='.$row['survey_id'].'" target="_blank"><i class="fa-solid fa-list"></i></a>' ; 
             $data[] = $sub_arr ; 
             $counter +=1 ; 
         }

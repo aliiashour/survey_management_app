@@ -102,7 +102,7 @@
             // open reset_password_modal when clicking the change_password_button
             $("#change_password_button").on('click', function(){
                 $("#reset_password_modal").modal('show') ; 
-            })
+            });
 
             // submit the modal 
             $(document).on("submit", "#reset_password_modal", function(event){
@@ -148,6 +148,13 @@
                 }, 2000);
 
             });
+
+            // take survey
+            // $(".take_survey").on('click', function(){
+            //     // localStorage.setItem("survey_id", $(this).data("survey_id"));
+            //     console.log("Asdfg") ; 
+            //     // console.log($(this).data("survey_id"));
+            // });
 
         </script>
     <?php else: ?>
