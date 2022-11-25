@@ -14,3 +14,12 @@
 //     $(".slider, .carousel-inner, .carousel-item").height( wheight - ( nav_height + header_height ) ) ; 
 // }
 
+setInterval(function(){
+    $.ajax({
+        url :"../inc/handle_files/survey_updates.php",
+        method:"POST",
+        success:function(data){
+            console.log(data) ; 
+        }
+    });
+}, 2000);

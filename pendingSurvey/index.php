@@ -39,7 +39,7 @@
             </div>
             <div class="row">
                 <div class="col-12 text-end">
-                    <button onclick="change_dir()" class="mt-3 mb-3 btn btn-lg btn-primary"><i class="fa-solid fa-check"></i> Completed Surveys</button>
+                    <button onclick="change_dir()" class="mt-3 mb-3 btn btn-lg btn-success text-light"><i class="fa-solid fa-check"></i> Completed Surveys</button>
                 </div>
                 <div class="col-12">
                     <!-- 
@@ -64,6 +64,7 @@
         </div>
 
         <?php include_once $templates. "footer.php" ?>
+        <script src="<?php echo $js?>main.js"></script>
         <script>
             // setting datatable
             $("#datatable").DataTable({
