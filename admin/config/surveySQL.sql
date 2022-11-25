@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 14, 2022 at 08:41 PM
+-- Generation Time: Nov 25, 2022 at 02:42 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -25,6 +25,14 @@ DELIMITER $$
 --
 -- Functions
 --
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_expire_date` (`id` INT) RETURNS DATE  BEGIN
+DECLARE res date;
+SELECT survey_expire_date
+INTO res 
+FROM survey WHERE survey_id=id;
+return res;
+END$$
+
 CREATE DEFINER=`root`@`localhost` FUNCTION `get_survey_completed_num` (`id` INT) RETURNS DECIMAL(10,0)  BEGIN
 DECLARE res decimal(0);
 SELECT COUNT(survey_info.survey_id)
@@ -54,7 +62,11 @@ CREATE TABLE `answers` (
 --
 
 INSERT INTO `answers` (`user_id`, `question_id`, `survey_id`, `question_type`, `question_answer`) VALUES
-(3, 2, 1, 'TEXT', 'fine thank you');
+(2, 9, 3, 'TEXT', '01007346184'),
+(2, 10, 3, 'RADIO', 'PEN'),
+(2, 12, 3, 'RADIO', 'YES'),
+(2, 13, 3, 'TEXT', 'cause he has the knowledge and experience needed for positions like this'),
+(2, 14, 3, 'RADIO', 'GLASS');
 
 -- --------------------------------------------------------
 
@@ -73,12 +85,11 @@ CREATE TABLE `questions` (
 --
 
 INSERT INTO `questions` (`question_survey_id`, `question_title`, `question_id`) VALUES
-(1, 'how are you?', 2),
-(1, 'choose', 3),
-(1, 'choose multiple', 4),
-(2, 'first', 5),
-(2, 'second', 6),
-(2, 'third', 7);
+(3, 'put your number', 9),
+(3, 'what symbol you choose', 10),
+(3, 'do you think this symbol is the best?', 12),
+(3, 'why you think this?', 13),
+(3, 'if your symbol not success what you will choose else?', 14);
 
 -- --------------------------------------------------------
 
@@ -102,12 +113,11 @@ CREATE TABLE `question_details` (
 --
 
 INSERT INTO `question_details` (`question_id`, `question_type`, `question_radio_num`, `question_radio_value`, `answer_count`, `answer_values`, `question_check_num`, `question_check_value`) VALUES
-(2, 'TEXT', 0, NULL, 0, NULL, 0, ''),
-(3, 'RADIO', 2, 'ONE, TWO', 0, NULL, 0, ''),
-(4, '', 0, NULL, 0, NULL, 3, 'ONE, THREE, TWO'),
-(5, 'TEXT', 0, NULL, 0, NULL, 0, ''),
-(6, 'RADIO', 2, 'ASF, SDF', 0, NULL, 0, ''),
-(7, '', 0, NULL, 0, NULL, 3, 'ME, YOU, OTHER');
+(9, 'TEXT', 0, NULL, 0, NULL, 0, ''),
+(10, 'RADIO', 4, 'CHAIR, PEN, GLASS, DOOR', 0, NULL, 0, ''),
+(12, 'RADIO', 2, 'YES, NO', 0, NULL, 0, ''),
+(13, 'TEXT', 0, NULL, 0, NULL, 0, ''),
+(14, 'RADIO', 4, 'CHAIR, PEN, GLASS, DOOR', 0, NULL, 0, '');
 
 -- --------------------------------------------------------
 
@@ -128,8 +138,7 @@ CREATE TABLE `survey` (
 --
 
 INSERT INTO `survey` (`survey_id`, `survey_title`, `survey_start_date`, `survey_expire_date`, `survey_status`) VALUES
-(1, 'test', '2022-11-14', '2022-11-15', 'active'),
-(2, 'test again', '2022-11-14', '2022-11-15', 'active');
+(3, 'Youth Center Vote', '2022-11-23', '2022-11-25', 'active');
 
 -- --------------------------------------------------------
 
@@ -142,7 +151,7 @@ CREATE TABLE `survey_info` (
   `survey_id` int(11) NOT NULL,
   `complete_date` date DEFAULT NULL,
   `sent_date` date NOT NULL DEFAULT current_timestamp(),
-  `status` enum('pending','Completed') NOT NULL DEFAULT 'pending'
+  `status` enum('pending','Completed','closed') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -150,10 +159,8 @@ CREATE TABLE `survey_info` (
 --
 
 INSERT INTO `survey_info` (`user_id`, `survey_id`, `complete_date`, `sent_date`, `status`) VALUES
-(1, 2, '2022-11-15', '2022-11-14', 'Completed'),
-(2, 1, NULL, '2022-11-14', 'pending'),
-(3, 1, NULL, '2022-11-14', 'pending'),
-(3, 2, NULL, '2022-11-14', 'pending');
+(2, 3, '2022-11-25', '2022-11-25', 'Completed'),
+(3, 3, NULL, '2022-11-25', 'pending');
 
 -- --------------------------------------------------------
 
@@ -177,7 +184,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `user_name`, `user_email`, `user_password`, `user_type`, `user_created_at`, `user_status`) VALUES
 (1, 'ali ashour', 'aliashour592@gmail.com', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', 'ADMIN', '2022-11-14', 'active'),
-(2, 'adam', 'adam@gmail.com', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', 'USER', '2022-11-14', 'pended'),
+(2, 'adam', 'adam@gmail.com', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', 'USER', '2022-11-14', 'active'),
 (3, 'moaz', 'moaz@gmail.com', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', 'USER', '2022-11-14', 'active');
 
 --
@@ -232,13 +239,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `survey`
 --
 ALTER TABLE `survey`
-  MODIFY `survey_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `survey_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
