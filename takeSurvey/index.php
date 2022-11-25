@@ -92,7 +92,7 @@
                                                                             <textarea class="form-control" id="textarea_<?php echo $question_id?>" rows="3"></textarea>
                                                                         </div>
                                                                         <div class="mb-3 text-end">
-                                                                            <button data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="TEXT" data-field_name="textarea_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
+                                                                            <button style="visibility:hidden;" data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="TEXT" data-field_name="textarea_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -130,7 +130,7 @@
                                                                     
                                                                     ?>
                                                                     <div class="mb-3 text-end">
-                                                                        <button data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="RADIO" data-field_name="radio_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
+                                                                        <button style="visibility:hidden;" data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="RADIO" data-field_name="radio_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -159,7 +159,7 @@
                                                                                         if($i==0)
                                                                                             $r .= ' checked' ; 
                                                                                         $r .= '>
-                                                                                        <label class="form-check-label" for="radio_'.$question_id.'_'.$i.'">
+                                                                                        <label class="form-check-label" for="check_'.$question_id.'_'.$i.'">
                                                                                             ';
                                                                             $r .= $check_values[$i] ;
                                                                             $r .=       '</label>
@@ -169,7 +169,7 @@
                                                                     
                                                                     ?>
                                                                     <div class="mb-3 text-end">
-                                                                        <button data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="CHECKBOX" data-field_name="checkbox_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
+                                                                        <button style="visibility:hidden;" data-user_id="<?php echo $_SESSION['user_id']?>" data-question_id = "<?php echo $question_id?>" data-survey_id="<?php echo $survey_id?>" data-question_type="CHECKBOX" data-field_name="checkbox_<?php echo $question_id?>" data-form_id="form_<?php echo $question_id?>" type="submit" class="btn btn-primary click">Send</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -178,8 +178,10 @@
                                                     <?php
                                                     }
                                                 }
-                                                // echo "$question_id => $question_title<br>" ; 
                                             }
+                                            ///////////////////////////////////////////////////////
+                                            echo "<div class='col-12 text-end'><button id='bla' onclick='sumbit_survey()' class='btn btn-primary btn-md'>send</button></div>" ; 
+                                            echo '<row><div class="col-12 mt-1" id="error_list"></div></row>' ; 
                                         }else{
                                             echo "there are no question fro this survey yet" ; 
                                         }
@@ -191,6 +193,7 @@
 
                         <?php include_once $templates. "footer.php" ?>
                         <script>
+
                             // open reset_password_modal when clicking the change_password_button
                             $("#change_password_button").on('click', function(){
                                 $("#reset_password_modal").modal('show') ; 
@@ -240,6 +243,18 @@
                                 }, 2000);
 
                             });
+                            
+
+
+                            // clicking the submit button
+                            function sumbit_survey(){
+                                
+                                $(".click").each(function(){
+                                    $(this).click();
+                                });
+                                $("#bla").attr('disabled', 'disabled') ; 
+                            }
+                            
 
                             $(".click").on("click", function(){
                                 localStorage.setItem("form_id", $(this).data('form_id')) ;
@@ -248,7 +263,6 @@
                                 var survey_id = $(this).data('survey_id') ;
                                 var question_type = $(this).data('question_type') ; 
                                 var question_answer = $("#textarea_"+question_id).val();
-                                console.log(question_answer);
                                 if(question_type == "CHECKBOX"){
                                     var chooses = [];
                                     $.each($("input[name='"+ $(this).data("field_name") +"']:checked"), function(){
@@ -259,25 +273,23 @@
                                     question_answer = $("input[name='"+ $(this).data("field_name") +"']:checked").val();
                                 }
                                 
-                                
                                 $("#"+localStorage.getItem("form_id")).submit(function(event){
                                     event.preventDefault() ; 
-                                    console.log(localStorage.getItem("form_id")) ; 
-                                    $.ajax({
-                                        url:"../inc/handle_files/upload_survey_answer.php",
-                                        method:"POST",
-                                        data:{user_id:user_id, question_id:question_id, survey_id:survey_id, question_type:question_type, question_answer:question_answer},
-                                        // beforeSend:function(){
-                                        //     $("#reset_button").html('wait..');
-                                        //     $("#reset_button").attr('disabled', 'disabled');
-                                        // },
-                                        success:function(data){
-                                            console.log(data) ; 
-                                        }
-                                    });
-
+                                    if(question_answer != ''){
+                                        $.ajax({
+                                            url:"../inc/handle_files/upload_survey_answer.php",
+                                            method:"POST",
+                                            data:{user_id:user_id, question_id:question_id, survey_id:survey_id, question_type:question_type, question_answer:question_answer},
+                                            success:function(data){ 
+                                                
+                                            }
+                                        });
+                                    }else{
+                                        $("#error_list").append('<div class="alert alert-danger">fill all field</div>') ;   
+                                    }
                                 }) ; 
-                            }) ; 
+
+                            }) ;
 
 
                         </script>
