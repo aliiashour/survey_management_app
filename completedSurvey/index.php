@@ -39,7 +39,7 @@
             </div>
             <div class="row">
                 <div class="col-12 text-end">
-                    <button onclick="change_dir()" class="mt-3 mb-3 btn btn-lg btn-primary"><i class="fa-solid fa-pen-to-square"></i> Pending Surveys</button>
+                    <button onclick="change_dir()" class="mt-3 mb-3 btn btn-lg btn-danger"><i class="fa-solid fa-pen-to-square"></i> Pending Surveys</button>
                 </div>
                 <div class="col-12">
                     <!-- 
