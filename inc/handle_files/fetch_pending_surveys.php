@@ -5,7 +5,7 @@
     FROM `survey_info` INNER JOIN users ON
     survey_info.user_id = users.user_id 
     INNER JOIN survey ON 
-    survey.survey_id = survey_info.survey_id WHERE users.user_id = :user_id AND status='pending' " ; 
+    survey.survey_id = survey_info.survey_id WHERE users.user_id = :user_id AND status IN ('pending', 'closed') " ; 
     $stmt = $con->prepare($q) ; 
     $stmt->execute(array(
         ':user_id' => $_SESSION['user_id']
@@ -50,7 +50,11 @@
             $sub_arr[] = $row['sent_date'] ; 
             $sub_arr[] = $row['survey_expire_date'] ; 
             $sub_arr[] = '<span class="btn btn-sm bg-danger text-light">'.$row['status'].'</span>' ; 
-            $sub_arr[] = '<a class="btn btn-md btn-info" href="../takeSurvey/index.php?survey_id='.$row['survey_id'].'" target="_blank"><i class="fa-solid fa-list"></i></a>' ; 
+            if($row['status'] != 'closed'){
+                $sub_arr[] = '<a class="btn btn-md btn-info" href="../takeSurvey/index.php?survey_id='.$row['survey_id'].'" target="_blank"><i class="fa-solid fa-list"></i></a>' ; 
+            }
+            $sub_arr[] = '' ; 
+            
             $data[] = $sub_arr ; 
             $counter +=1 ; 
         }

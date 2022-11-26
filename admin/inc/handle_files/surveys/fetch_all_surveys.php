@@ -38,7 +38,12 @@
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $sub_arr = array() ; 
             $sub_arr[] = $counter; 
-            $sub_arr[] = '<input type="radio" id="'.$row['survey_id'].'" name="selection_survey" value="'. $row['survey_id'] .'">' ; 
+            $send_button = '<button';
+            if(date("Y-m-d", time()) > $row['survey_expire_date']){
+                $send_button .= ' disabled title="can\'t send expired survey"';
+            }
+            $send_button .= '  id="send_button" class="btn btn-info" data-survey_id="' . $row['survey_id'] . '"><i class="fa-solid fa-paper-plane-top"></i>SEND</button>' ;
+            $sub_arr[] =  $send_button; 
             $sub_arr[] = $row['survey_title'] ; 
             $sub_arr[] = $row['survey_start_date'] ; 
             $sub_arr[] = $row['survey_expire_date'] ; 
@@ -56,7 +61,6 @@
                             </a>
                             <button data-title="Edit Survey" data-action="update" id="edit_button" class="btn btn-warning" data-survey_id="' . $row['survey_id'] . '"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button id="delete_button" class="btn btn-danger" data-survey_id="' . $row['survey_id'] . '"><i class="fa-sharp fa-solid fa-trash"></i></button>
-                            <button id="send_button" class="btn btn-info" data-survey_id="' . $row['survey_id'] . '"><i class="fa-solid fa-paper-plane-top"></i>SEND</button>
                         ' ; 
             $data[] = $sub_arr ; 
             $counter +=1 ; 
